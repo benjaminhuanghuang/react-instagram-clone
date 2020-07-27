@@ -7,6 +7,7 @@ import { Modal, Button, Input } from "@material-ui/core/";
 import { db, auth } from "./firebase";
 //
 import Post from "./Post";
+import ImageUpload from "./ImageUpload";
 
 import "./App.css";
 
@@ -77,14 +78,16 @@ function App() {
   }, []);
 
   const fetchPosts = () => {
-    db.collection("posts").onSnapshot((snapshot) => {
-      setPosts(
-        snapshot.docs.map((doc) => ({
-          id: doc.id,
-          post: doc.data(),
-        }))
-      );
-    });
+    db.collection("posts")
+      .orderBy("timestamp", "desc")
+      .onSnapshot((snapshot) => {
+        setPosts(
+          snapshot.docs.map((doc) => ({
+            id: doc.id,
+            post: doc.data(),
+          }))
+        );
+      });
   };
 
   const signUp = (event) => {
@@ -101,11 +104,10 @@ function App() {
 
   const signIn = (event) => {
     event.preventDefault();
-    auth.signInWithEmailAndPassword(email, password)
-    .catch((error) => alert(error.message));
+    auth.signInWithEmailAndPassword(email, password).catch((error) => alert(error.message));
 
     setOpenSignIn(false);
-  }
+  };
 
   return (
     <div className="app">
@@ -161,20 +163,22 @@ function App() {
           src="https://www.instagram.com/static/images/web/mobile_nav_type_logo-2x.png/1b47f9d0e595.png"
           alt=""
         />
+        {user ? (
+          <Button onClick={() => auth.signOut()}>Log out</Button>
+        ) : (
+          <div className="app_loginContainer">
+            <Button onClick={() => setOpenSignIn(true)}>Sign In</Button>
+            <Button onClick={() => setOpen(true)}>Sign Up</Button>
+          </div>
+        )}
       </div>
-      {user ? (
-        <Button onClick={() => auth.signOut()}>Log out</Button>
-      ) : (
-        <div className="app_loginContainer">
-          <Button onClick={() => setOpenSignIn(true)}>Sign In</Button>
-          <Button onClick={() => setOpen(true)}>Sign Up</Button>
-        </div>
-      )}
 
       <h1>Hello</h1>
       {posts.map(({ id, post }) => (
         <Post key={id} username={post.username} caption={post.caption} imageUrl={post.imageUrl} />
       ))}
+
+      {user?.displayName ? <ImageUpload username={user.displayName} /> : <h3>Please login to upload</h3>}
     </div>
   );
 }

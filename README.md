@@ -35,5 +35,9 @@ React hook
 firebase auth
 
 
+- Image upload
+
+firebase storage
+
 
  
