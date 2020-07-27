@@ -12,7 +12,7 @@
 
 - Firebase
 create project
-
+ 
 
 
 - Install Material UI
@@ -24,6 +24,10 @@ create project
 
 
 - Creaet Firebase database, collection
+read data from firebase database
+
+
+- Auth
 
 
  
