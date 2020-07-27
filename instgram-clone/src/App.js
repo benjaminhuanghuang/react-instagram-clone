@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 
 import { makeStyles } from "@material-ui/core/styles";
-import Modal from "@material-ui/core/Modal";
-import Button from "@material-ui/core/Button";
+import { Modal, Button, Input } from "@material-ui/core/";
 
 //
-import { db } from "./firebase";
+import { db, auth } from "./firebase";
 //
 import Post from "./Post";
 
@@ -41,6 +40,35 @@ function App() {
   const [modalStyle] = React.useState(getModalStyle);
   const [open, setOpen] = useState(false);
 
+  const [username, setUserName] = useState([]);
+  const [email, setEmail] = useState([]);
+  const [password, setPassword] = useState([]);
+  // for auth
+  const [user, setUser] = useState(null);
+
+  useEffect(()=>{
+    const unsubscribe = auth.onAuthStateChanged((authUser)=>{
+      if(authUser) {
+        //user is logged in
+        setUser(authUser);
+
+        if(authUser.displayName)
+        {
+
+        }else{
+          // if we just created someone
+          return authUser.updateProfile({
+            displayName: username
+          })
+        }
+      }
+      else{
+        setUser(null);
+      }
+    })
+    return () => unsubscribe();
+  }, [user, username]);
+
   useEffect(() => {
     fetchPosts();
   }, []);
@@ -56,11 +84,41 @@ function App() {
     });
   };
 
+  const signUp = (event) => {
+    event.preventDefault();
+    auth.createUserWithEmailAndPassword(email, password)
+      .then((authUser)=>{
+        authUser.user.updateProfil({
+          displayName: username
+        });
+      })
+      .catch((error) => alert(error.message));
+  };
+
   return (
     <div className="app">
       <Modal open={open} onClose={() => setOpen(false)}>
         <div style={modalStyle} className={classes.paper}>
-          <h2>HHHHHHH</h2>
+          <center>
+            <img
+              src="https://www.instagram.com/static/images/web/mobile_nav_type_logo-2x.png/1b47f9d0e595.png"
+              alt=""
+            />
+          </center>
+          <form className="app__signup">
+            <Input placeholder="username" type="text" value={username} onChange={(e) => setUserName(e.target.value)} />
+
+            <Input placeholder="email" type="text" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <Input
+              placeholder="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <Button type="submit" onClick={signUp}>
+              Sign Up
+            </Button>
+          </form>
         </div>
       </Modal>
       <div className="app__header">
