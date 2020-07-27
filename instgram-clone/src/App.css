@@ -16,6 +16,11 @@
   justify-content:  space-between;
 }
 
+.app__posts {
+  padding: 20px;
+}
+
+
 .app__signup{
   display: flex;
   flex-direction: column;
